@@ -1,0 +1,60 @@
+from sklearn.datasets import load_iris
+import pandas as pd
+
+# Load dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Convert to DataFrame for better visualization
+iris_df = pd.DataFrame(X, columns=iris.feature_names)
+iris_df['species'] = y
+print(iris_df.head())
+from sklearn.preprocessing import StandardScaler
+
+# Standardize the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+
+# Initialize and train the model
+clf = LogisticRegression()
+clf.fit(X_train, y_train)
+
+# Make predictions
+y_pred = clf.predict(X_test)
+
+# Evaluate the model
+print(f'Accuracy: {accuracy_score(y_test, y_pred)}')
+print(classification_report(y_test, y_pred, target_names=iris.target_names))
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+# Define the model
+model = Sequential([
+    Dense(8, activation='relu', input_shape=(X_train.shape[1],)),
+    Dense(8, activation='relu'),
+    Dense(3, activation='softmax')
+])
+
+# Compile the model
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+# Train the model
+history = model.fit(X_train, y_train, epochs=50, validation_split=0.2, verbose=2)
+
+# Evaluate the model
+test_loss, test_acc = model.evaluate(X_test, y_test, verbose=2)
+print(f'Test accuracy: {test_acc}')
+# Make predictions
+y_pred_nn = model.predict(X_test)
+y_pred_classes = y_pred_nn.argmax(axis=-1)
+
+# Evaluate the model
+print(f'Accuracy: {accuracy_score(y_test, y_pred_classes)}')
+print(classification_report(y_test, y_pred_classes, target_names=iris.target_names))
